@@ -1,0 +1,15 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: php-apache-keda
+  namespace: jumpstart
+spec:
+  maxReplicaCount: 10
+  minReplicaCount: 1
+  scaleTargetRef:
+    name: php-apache
+  triggers:
+  - type: cpu
+    metadata:
+      type: Utilization
+      value: "50"
