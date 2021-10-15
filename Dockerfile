@@ -1,4 +1,4 @@
-FROM python:3.8-slim-buster AS compile-image
+FROM python:3.8-slim-bullseye AS compile-image
 RUN apt-get update
 RUN apt-get install -y --no-install-recommends build-essential gcc
 
