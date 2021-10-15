@@ -1,0 +1,50 @@
+apiVersion: cloud.redhat.com/v1alpha1
+kind: ClowdApp
+metadata:
+  name: python
+  namespace: default
+spec:
+  # The name of the ClowdEnvironment providing the services
+  envName: env-default
+
+  # The bulk of your App. This is where your running apps will live
+  deployments:
+  - name: prom
+    minReplicas: 1
+    podSpec:
+      image: localhost:5000/python-prom:v1
+      resources:
+        limits:
+          cpu: 500m
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 0.5Gi
+    autoScaler:
+      maxReplicaCount: 10
+      triggers:
+      - type: prometheus
+        metadata:
+          # Required
+          serverAddress: http://prometheus-k8s.monitoring:9090
+          metricName: http_requests_total
+          threshold: '4'
+          query: sum(rate(flask_http_request_total{namespace="default"}[2m])) # Note: query must return a vector/scalar single element response
+      advanced:                                          # Optional. Section to specify advanced options
+        restoreToOriginalReplicaCount: false             # Optional. Default: false
+        horizontalPodAutoscalerConfig:                   # Optional. Section to specify HPA related options
+          behavior:                                      # Optional. Use to modify HPA's scaling behavior
+            scaleDown:
+              stabilizationWindowSeconds: 300
+              policies:
+              - type: Percent
+                value: 100
+                periodSeconds: 15
+    # Creates a Service on port 8000
+    webServices:
+      metrics:
+        enabled: true
+      private:
+        enabled: false
+      public:
+        enabled: false
