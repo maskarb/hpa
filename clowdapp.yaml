@@ -12,7 +12,7 @@ spec:
   - name: prom
     minReplicas: 1
     podSpec:
-      image: localhost:5000/python-prom:v1
+      image: quay.io/mskarbek/python-prom:latest
       resources:
         limits:
           cpu: 500m
